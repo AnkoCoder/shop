@@ -3,10 +3,10 @@
 {% block content %}
 <div>
     <h1 class="text-center">Catalog</h1>
-    {% for category, products in catalog.items() %}
-    <h3>{{ category }}</h3>
-    <table class="table table-hover">
-        <thead>
+    {% for category in catalog %}
+    <h3>{{ category.name }}</h3>
+    <table class="table table-border table-hover">
+        <thead class="thead-dark">
             <th class="col-md-6">Type</th>
             <th class="col-md-6">Price</th>
         </thead>
