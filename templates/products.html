@@ -3,17 +3,17 @@
 {% block content %}
 <div>
     <h1 class="text-center">Catalog</h1>
-    {% for category in catalog %}
+    {% for category in categories %}
     <h3>{{ category.name }}</h3>
     <table class="table table-border table-hover">
         <thead class="thead-dark">
             <th class="col-md-6">Type</th>
-            <th class="col-md-6">Price</th>
+            <th class="col-md-6">Cost</th>
         </thead>
-        {% for product in products %}
+        {% for product in category.products %}
             <tr>
                 <td>{{ product.name }}</td>
-                <td>{{ product.price }}</td>
+                <td>{{ product.cost }}</td>
             </tr>
         {% endfor %}
     </table>

@@ -25,10 +25,6 @@
             "price": 45
         },
         {
-            "name": "Jeans",
-            "price": 50
-        },
-        {
             "name": "Coat",
             "price": 100
         },
@@ -42,11 +38,11 @@
         },
         {
             "name": "Blouse",
-            "price": 100
+            "price": 40
         },
         {
             "name": "Shirt",
-            "price": 100
+            "price": 50
         }
     ],
     "Underwear": [
