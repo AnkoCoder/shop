@@ -29,7 +29,7 @@ def add_to_cart(update, context):
         product_name = update.message.text.split(',')
         logging.info(product_name)
         product = Product.query.filter(Product.name==product_name[0]).first()
-        item = OrderItem(product_id=product.id, quantity=int(product_name[1])) 
+        item = OrderItem(product_id=product.id, quantity=int(product_name[1]), order=order) 
         db.session.add(item)
         db.session.commit()
         context.bot.send_message(chat_id=update.effective_chat.id, text='The product is added to your cart. If you want to add anything else to your cart type "yes"?')
