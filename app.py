@@ -39,10 +39,22 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
 
 
-admin.add_view(ModelView(Category, db.session))
-admin.add_view(ModelView(Product, db.session))
-admin.add_view(ModelView(Order, db.session))
-admin.add_view(ModelView(OrderItem, db.session))
+class ProductAdmin(ModelView):
+    column_list=['id', 'name', 'cost', 'category']
+
+class CategoryAdmin(ModelView):
+    column_list=['id', 'name']
+
+class OrderAdmin(ModelView):
+    column_list=['id', 'telegram_id']
+
+class OrderItemAdmin(ModelView):
+    column_list=['id', 'order_id', 'product_id', 'quantity']
+
+admin.add_view(CategoryAdmin(Category, db.session))
+admin.add_view(ProductAdmin(Product, db.session))
+admin.add_view(OrderAdmin(Order, db.session))
+admin.add_view(OrderItemAdmin(OrderItem, db.session))
 
 
 @app.route('/')
