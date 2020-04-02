@@ -17,6 +17,8 @@ class Category(db.Model):
     name = db.Column(db.String(80), unique=True, nullable=False)
     products = db.relationship('Product', backref='category')
 
+    def __repr__(self):
+        return self.name
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -24,6 +26,9 @@ class Product(db.Model):
     name = db.Column(db.String(80), unique=True, nullable=False)
     cost = db.Column(db.Integer, nullable=False)
     items = db.relationship('OrderItem', backref='product')
+
+    def __repr__(self):
+        return self.category_id
 
 
 class Order(db.Model):
@@ -38,7 +43,7 @@ class OrderItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-
+# Отображение колонок, которые необходимо видеть в админке
 class ProductAdmin(ModelView):
     column_list=['id', 'name', 'cost', 'category']
 
