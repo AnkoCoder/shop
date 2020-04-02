@@ -32,7 +32,7 @@ def add_to_cart(update, context):
         item = OrderItem(product_id=product.id, quantity=int(product_name[1])) 
         db.session.add(item)
         db.session.commit()
-        context.bot.send_message(chat_id=update.effective_chat.id, text='The product is added to your cart. If you want to ass anything else to your cart type "yes"?')
+        context.bot.send_message(chat_id=update.effective_chat.id, text='The product is added to your cart. If you want to add anything else to your cart type "yes"?')
     return AGAIN
 
 
@@ -48,11 +48,8 @@ def end(update, context):
     return END
 
 start_handler = CommandHandler('start', start)
-#add_to_cart_handler = CommandHandler('add', add_to_cart)
-choose_product_handler = CommandHandler('how', choose_product)
 
 dispatcher.add_handler(start_handler)
-#dispatcher.add_handler(add_to_cart_handler)
 
 
 conv_handler = ConversationHandler(
