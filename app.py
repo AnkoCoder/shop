@@ -18,7 +18,7 @@ class Category(db.Model):
     products = db.relationship('Product', backref='category')
 
     def __repr__(self):
-        return 'Categoty: ' + self.name
+        return 'Category: ' + self.name
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)

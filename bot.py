@@ -49,7 +49,7 @@ def add_to_cart(update, context):
     context.user_data['product_id'] = product.id
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text='How many ' + product_name + 'do you want?'
+        text='How many ' + product_name + ' do you want?'
     )
     return QUANTITY
 
@@ -76,19 +76,23 @@ def again(update, context):
     if update.message.text == 'yes':
         return choose_product(update, context)
     elif update.message.text == 'no':
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, 
-            text='Maybe next time you will be in mood for shopping :-)'
-        )
         return end(update, context)
 
 
 def end(update, context):
+    order_id = context.user_data['order_id']    
+    message = 'Your order id is ' + str(order_id) + '. Your cart: \n\n'
+    items = OrderItem.query.filter(OrderItem.order_id==order_id).all()
+    message += '\n'.join(
+        '{} {} {}'.format(item.product.name, item.quantity, item.product.cost) for item in items
+    )
+    message += '\n\nTotal: ' + str(sum(item.quantity * item.product.cost for item in items))
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text='It was nice talking to you! See you soon!'
+        text=message
     )
-    return END
+    del context.user_data['order_id']
+    return start(update, context)
 
 
 start_handler = CommandHandler('start', start)
