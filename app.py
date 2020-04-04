@@ -18,7 +18,7 @@ class Category(db.Model):
     products = db.relationship('Product', backref='category')
 
     def __repr__(self):
-        return self.name
+        return 'Categoty: ' + self.name
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,7 +28,7 @@ class Product(db.Model):
     items = db.relationship('OrderItem', backref='product')
 
     def __repr__(self):
-        return self.category_id
+        return 'Product: ' + self.name
 
 
 class Order(db.Model):
@@ -54,7 +54,7 @@ class OrderAdmin(ModelView):
     column_list=['id', 'telegram_id']
 
 class OrderItemAdmin(ModelView):
-    column_list=['id', 'order_id', 'product_id', 'quantity']
+    column_list=['id', 'order', 'product', 'quantity']
 
 admin.add_view(CategoryAdmin(Category, db.session))
 admin.add_view(ProductAdmin(Product, db.session))

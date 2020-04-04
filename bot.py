@@ -32,35 +32,43 @@ def get_or_create_order(update, context):
     return order
 
 ADD_TO_CART  = 0
-AGAIN = 1
-END = 2
+QUANTITY = 1
+AGAIN = 2
+END = 3
 
 def choose_product(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text='If you want to add something to your cart you need to type the name ' +
-        'of the product and the quantity you want to buy (Example: Pants, 1). Otherwise type "no".'
+        text='Type in the name of the product you want to add to your cart.'
     )
     return ADD_TO_CART
 
 def add_to_cart(update, context):
-    if update.message.text == 'no':
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, 
-            text='Maybe next time you will be in mood for shopping :-)'
-        )
-        return end(update, context)
-    else:
-        order = get_or_create_order(update, context)
-        product_name = update.message.text.split(',')
-        product = Product.query.filter(Product.name==product_name[0]).first()
-        item = OrderItem(product_id=product.id, quantity=int(product_name[1]), order=order) 
-        db.session.add(item)
-        db.session.commit()
-        context.bot.send_message(
-            chat_id=update.effective_chat.id, 
-            text='The product is added to your cart. If you want to add anything else to your cart type "yes"?'
-        )
+    product_name = update.message.text
+    product = Product.query.filter(Product.name==product_name).first()
+    context.user_data['product_id'] = product.id
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text='How many ' + product_name + 'do you want?'
+    )
+    return QUANTITY
+
+
+def quantity(update, context):
+    order = get_or_create_order(update, context)
+    quantity = int(update.message.text)
+    product_id = context.user_data['product_id']
+    product = Product.query.filter(Product.id==product_id).first()
+    item = OrderItem(order_id=order.id, product_id=product_id, quantity=quantity)
+    db.session.add(item)
+    db.session.commit()
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, 
+        text= product.name + 
+        ' in quantity of ' + 
+        str(quantity) + 
+        ' added to your cart! If you want to add anything else type "yes", othewise type "no"?'
+    )
     return AGAIN
 
 
@@ -89,6 +97,7 @@ conv_handler = ConversationHandler(
 
     states={
         ADD_TO_CART: [MessageHandler(Filters.text, add_to_cart)],
+        QUANTITY: [MessageHandler(Filters.text, quantity)],
         AGAIN: [MessageHandler(Filters.text, again)],
         END: [MessageHandler(Filters.text, end)]
     }, 
