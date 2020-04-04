@@ -19,6 +19,18 @@ def start(update, context):
     )
 
 
+def get_or_create_order(update, context):
+    user_data = context.user_data
+    if 'order_id' in user_data:
+        order_id = user_data['order_id']
+        order = Order.query.filter(Order.id==order_id).first()
+    else:
+        order = Order(telegram_id=update.message.from_user.id) 
+        db.session.add(order)
+        db.session.commit()
+        user_data['order_id'] = order.id
+    return order
+
 ADD_TO_CART  = 0
 AGAIN = 1
 END = 2
@@ -39,11 +51,8 @@ def add_to_cart(update, context):
         )
         return end(update, context)
     else:
-        logging.info(update.message.text)
-        order = Order(telegram_id=update.message.from_user.id) 
-        db.session.add(order)
+        order = get_or_create_order(update, context)
         product_name = update.message.text.split(',')
-        logging.info(product_name)
         product = Product.query.filter(Product.name==product_name[0]).first()
         item = OrderItem(product_id=product.id, quantity=int(product_name[1]), order=order) 
         db.session.add(item)
