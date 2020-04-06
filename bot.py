@@ -1,6 +1,6 @@
 import os
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from app import db, Product, Order, OrderItem
 
@@ -8,9 +8,25 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
 dispatcher = updater.dispatcher
 
+def build_menu(buttons,
+               n_cols,
+               header_buttons=None,
+               footer_buttons=None):
+    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
+    if header_buttons:
+        menu.insert(0, [header_buttons])
+    if footer_buttons:
+        menu.append([footer_buttons])
+    return menu
+
 def start(update, context):
-    button = InlineKeyboardButton("Visit shop", url='http://127.0.0.1:5000/')
-    reply_markup = InlineKeyboardMarkup([[ button ]])
+    button_list = [
+        [
+            InlineKeyboardButton("Visit shop", url='http://127.0.0.1:5000/'),
+            InlineKeyboardButton("Add to cart", callback_data='add'),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(button_list)
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text='Dear customer! Welcome to our online shop. You can check our products on the website ' +
@@ -84,9 +100,9 @@ def end(update, context):
     message = 'Your order id is ' + str(order_id) + '. Your cart: \n\n'
     items = OrderItem.query.filter(OrderItem.order_id==order_id).all()
     message += '\n'.join(
-        '{} {} {}'.format(item.product.name, item.quantity, item.product.cost) for item in items
+        'Product: {}, quantity: {}, price in USD: {}'.format(item.product.name, item.quantity, item.product.cost) for item in items
     )
-    message += '\n\nTotal: ' + str(sum(item.quantity * item.product.cost for item in items))
+    message += '\n\nTotal cost: ' + str(sum(item.quantity * item.product.cost for item in items))
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text=message
@@ -97,7 +113,10 @@ def end(update, context):
 
 start_handler = CommandHandler('start', start)
 conv_handler = ConversationHandler(
-    entry_points=[CommandHandler('add', choose_product)],
+    entry_points=[
+        CallbackQueryHandler(choose_product, pattern='add'), 
+        CommandHandler('add', choose_product)
+    ],
 
     states={
         ADD_TO_CART: [MessageHandler(Filters.text, add_to_cart)],
