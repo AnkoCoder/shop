@@ -1,5 +1,5 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, ConversationHandler
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
 import logging
 
 
@@ -9,7 +9,7 @@ updater = Updater(token='1115972626:AAH2Tnx3N3NRa0knkZJDedOS1Ny21RsbTxA', use_co
 dispatcher = updater.dispatcher
 
 
-GENDER, AGE = range(2)
+GENDER, AGE, AGAIN = range(3)
 
 
 def start(update, context):
@@ -20,7 +20,7 @@ def start(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="Choose your gender",
+        text="Hello! Please, choose your gender",
         reply_markup=reply_markup
     )
     return GENDER
@@ -44,19 +44,31 @@ def age(update, context):
     context.user_data['age'] = update.callback_query.data
     age = context.user_data['age']
     gender = context.user_data['gender']
-    message = 'Your gender is {} and age is in the range of {}'.format(gender, age)
+    message = 'Your gender is {} and age is in the range of {}. Do you want to talk again?'.format(gender, age)
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text=message
     )
+    return AGAIN
 
+def again(update, context):
+    if update.message.text.lower() == 'yes':
+        return start(update, context)
+    else: 
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, 
+            text='Ok! Maybe next time!'
+        )
+        return ConversationHandler.END # позволяет закончить разговор и не застрять в последней функции
+        # тогда пользователь после завершения разговора может заново его начать и на надо для этого 
+        # перезагружать бот
 
 conv_handler = ConversationHandler(
     entry_points=[CommandHandler('start', start)],
     states={
         GENDER: [CallbackQueryHandler(gender)],
-        AGE: [CallbackQueryHandler(age)]
-
+        AGE: [CallbackQueryHandler(age)],
+        AGAIN: [MessageHandler(Filters.text, again)]
     },
     fallbacks=[]
 )
