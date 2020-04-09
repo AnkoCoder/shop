@@ -8,17 +8,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
 dispatcher = updater.dispatcher
 
-def build_menu(buttons,
-               n_cols,
-               header_buttons=None,
-               footer_buttons=None):
-    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
-    if header_buttons:
-        menu.insert(0, [header_buttons])
-    if footer_buttons:
-        menu.append([footer_buttons])
-    return menu
-
 def start(update, context):
     button_list = [
         [
@@ -34,7 +23,8 @@ def start(update, context):
         reply_markup=reply_markup
     )
 
-
+# Проверяет есть ли такой номер заказа в таблице. 
+# Если есть, то все заказы до момента завершения общения с ботом будут записаны под этим номером 
 def get_or_create_order(update, context):
     user_data = context.user_data
     if 'order_id' in user_data:
@@ -65,7 +55,7 @@ def add_to_cart(update, context):
     context.user_data['product_id'] = product.id
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text='How many ' + product_name + ' do you want?'
+        text='How many {} do you want?'.format(product_name)
     )
     return QUANTITY
 
@@ -78,20 +68,23 @@ def quantity(update, context):
     item = OrderItem(order_id=order.id, product_id=product_id, quantity=quantity)
     db.session.add(item)
     db.session.commit()
+    keyboard = [
+        [InlineKeyboardButton('Yes', callback_data='yes'),
+        InlineKeyboardButton('No', callback_data='no')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text= product.name + 
-        ' in quantity of ' + 
-        str(quantity) + 
-        ' added to your cart! If you want to add anything else type "yes", othewise type "no"?'
+        text= '{} in quantity of {} added to your cart! Do you want to add anything else?'.format(product.name, str(quantity)),
+        reply_markup=reply_markup
     )
     return AGAIN
 
 
 def again(update, context):
-    if update.message.text == 'yes':
+    if update.callback_query.data == 'yes':
         return choose_product(update, context)
-    elif update.message.text == 'no':
+    else:
         return end(update, context)
 
 
@@ -102,13 +95,13 @@ def end(update, context):
     message += '\n'.join(
         'Product: {}, quantity: {}, price in USD: {}'.format(item.product.name, item.quantity, item.product.cost) for item in items
     )
-    message += '\n\nTotal cost: ' + str(sum(item.quantity * item.product.cost for item in items))
+    message += '\n\nTotal cost: {} USD'.format(str(sum(item.quantity * item.product.cost for item in items)))
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text=message
     )
     del context.user_data['order_id']
-    return start(update, context)
+    return ConversationHandler.END
 
 
 start_handler = CommandHandler('start', start)
@@ -121,7 +114,7 @@ conv_handler = ConversationHandler(
     states={
         ADD_TO_CART: [MessageHandler(Filters.text, add_to_cart)],
         QUANTITY: [MessageHandler(Filters.text, quantity)],
-        AGAIN: [MessageHandler(Filters.text, again)],
+        AGAIN: [CallbackQueryHandler(again)],
         END: [MessageHandler(Filters.text, end)]
     }, 
 
