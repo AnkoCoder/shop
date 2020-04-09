@@ -44,15 +44,21 @@ def age(update, context):
     context.user_data['age'] = update.callback_query.data
     age = context.user_data['age']
     gender = context.user_data['gender']
+    keyboard = [
+        [InlineKeyboardButton('Yes', callback_data='yes'),
+        InlineKeyboardButton('No', callback_data='no')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
     message = 'Your gender is {} and age is in the range of {}. Do you want to talk again?'.format(gender, age)
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text=message
+        text=message,
+        reply_markup=reply_markup
     )
     return AGAIN
 
 def again(update, context):
-    if update.message.text.lower() == 'yes':
+    if update.callback_query.data == 'yes':
         return start(update, context)
     else: 
         context.bot.send_message(
@@ -68,7 +74,7 @@ conv_handler = ConversationHandler(
     states={
         GENDER: [CallbackQueryHandler(gender)],
         AGE: [CallbackQueryHandler(age)],
-        AGAIN: [MessageHandler(Filters.text, again)]
+        AGAIN: [CallbackQueryHandler(again)]
     },
     fallbacks=[]
 )
