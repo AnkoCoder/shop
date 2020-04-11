@@ -54,7 +54,7 @@ def choose_product(update, context):
 def add_to_cart(update, context):
     try:
         product_id = int(update.message.text)
-        product = Product.query.filter(Product.id==product_id).first()
+        product = Product.query.get(product_id)
     except ValueError:
         product_name = update.message.text
         products = list(Product.query.filter(func.lower(Product.name).contains(product_name)))
@@ -81,7 +81,7 @@ def quantity(update, context):
     order = get_or_create_order(update, context)
     quantity = int(update.message.text)
     product_id = context.user_data['product_id']
-    product = Product.query.filter(Product.id==product_id).first()
+    product = Product.query.get(product_id)
     item = OrderItem(order_id=order.id, product_id=product_id, quantity=quantity)
     db.session.add(item)
     db.session.commit()
