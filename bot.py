@@ -68,8 +68,16 @@ def add_to_cart(update, context):
                 text=message
             )
             return ADD_TO_CART
+        elif len(products) == 0:
+            product = None
         else:
             product = products[0]
+    if product is None:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, 
+            text='No products found. Try again.'
+        )
+        return ADD_TO_CART
     context.user_data['product_id'] = product.id
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
