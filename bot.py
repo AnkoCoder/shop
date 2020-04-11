@@ -50,12 +50,16 @@ def choose_product(update, context):
     return ADD_TO_CART
 
 def add_to_cart(update, context):
-    product_name = update.message.text
-    product = Product.query.filter(Product.name==product_name).first()
+    try:
+        product_id = int(update.message.text)
+        product = Product.query.filter(Product.id==product_id).first()
+    except ValueError:
+        product_name = update.message.text
+        product = Product.query.filter(Product.name==product_name).first()
     context.user_data['product_id'] = product.id
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text='How many {} do you want?'.format(product_name)
+        text='How many {} do you want?'.format(product.name)
     )
     return QUANTITY
 
