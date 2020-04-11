@@ -2,7 +2,9 @@ import os
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from sqlalchemy import func
 from app import db, Product, Order, OrderItem
+
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 updater = Updater(token=os.environ.get('BOT_TOKEN'), use_context=True)
@@ -55,7 +57,7 @@ def add_to_cart(update, context):
         product = Product.query.filter(Product.id==product_id).first()
     except ValueError:
         product_name = update.message.text
-        products = list(Product.query.filter(Product.name.contains(product_name)))
+        products = list(Product.query.filter(func.lower(Product.name).contains(product_name)))
         if len(products) > 1:
             message = 'Found following products:\n'
             for product in products:
