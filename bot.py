@@ -45,7 +45,7 @@ END = 3
 def choose_product(update, context):
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text='Type in the name of the product you want to add to your cart.'
+        text='Type in the name or ID of the product you want to add to your cart.'
     )
     return ADD_TO_CART
 
@@ -55,14 +55,25 @@ def add_to_cart(update, context):
         product = Product.query.filter(Product.id==product_id).first()
     except ValueError:
         product_name = update.message.text
-        product = Product.query.filter(Product.name==product_name).first()
+        products = list(Product.query.filter(Product.name.contains(product_name)))
+        if len(products) > 1:
+            message = 'Found following products:\n'
+            for product in products:
+                message += '\n{} with ID = {}'.format(product.name, product.id)
+            message += '\n\nType in the name or ID of the product you want to add to your cart.'
+            context.bot.send_message(
+                chat_id=update.effective_chat.id, 
+                text=message
+            )
+            return ADD_TO_CART
+        else:
+            product = products[0]
     context.user_data['product_id'] = product.id
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
         text='How many {} do you want?'.format(product.name)
     )
     return QUANTITY
-
 
 def quantity(update, context):
     order = get_or_create_order(update, context)
@@ -79,7 +90,7 @@ def quantity(update, context):
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_message(
         chat_id=update.effective_chat.id, 
-        text= '{} in quantity of {} added to your cart! Do you want to add anything else?'.format(product.name, str(quantity)),
+        text= '{} in quantity of {} added to your cart! Do you want to add anything else?'.format(product.name, quantity),
         reply_markup=reply_markup
     )
     return AGAIN
