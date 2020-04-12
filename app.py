@@ -70,4 +70,5 @@ def catalog():
 
 @app.route('/example')
 def catalog_example():
-    return render_template('index.html')
+    categories = Category.query.all()
+    return render_template('index.html', categories=categories)
