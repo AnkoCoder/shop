@@ -66,3 +66,8 @@ admin.add_view(OrderItemAdmin(OrderItem, db.session))
 def catalog():
     categories = Category.query.all()
     return render_template('products.html', categories=categories)
+
+
+@app.route('/example')
+def catalog_example():
+    return render_template('index.html')
