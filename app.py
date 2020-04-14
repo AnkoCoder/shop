@@ -24,6 +24,8 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     name = db.Column(db.String(80), unique=True, nullable=False)
+    image_url = db.Column(db.String(1000), unique=True, nullable=False)
+    discription = db.Column(db.String(80), unique=True, nullable=False)
     cost = db.Column(db.Integer, nullable=False)
     items = db.relationship('OrderItem', backref='product')
 
