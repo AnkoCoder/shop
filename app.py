@@ -63,14 +63,20 @@ admin.add_view(ProductAdmin(Product, db.session))
 admin.add_view(OrderAdmin(Order, db.session))
 admin.add_view(OrderItemAdmin(OrderItem, db.session))
 
+# отображение данных в виде простой таблицы
+# @app.route('/')
+# def catalog():
+#     categories = Category.query.all()
+#     return render_template('products.html', categories=categories)
+
 
 @app.route('/')
-def catalog():
-    categories = Category.query.all()
-    return render_template('products.html', categories=categories)
-
-
-@app.route('/example')
 def catalog_example():
     categories = Category.query.all()
     return render_template('index.html', categories=categories)
+
+@app.route('/category/<id>/')
+def catalog_id(id):
+    categories = Category.query.all()
+    selected_category = Category.query.get(id)
+    return render_template('category.html', categories=categories, selected_category=selected_category)
