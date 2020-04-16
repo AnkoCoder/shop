@@ -1,0 +1,10 @@
+<h1 class="my-4">Catalog</h1>
+<div class="list-group">
+{% for category in categories %}
+    {% if category == selected_category %}
+    <a href="/category/{{ category.id }}/" class="list-group-item active-dark">{{ category.name }}</a>
+    {% else %}
+    <a href="/category/{{ category.id }}/" class="list-group-item">{{ category.name }}</a>
+    {% endif %}
+{% endfor %}
+</div>

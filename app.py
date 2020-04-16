@@ -79,4 +79,8 @@ def catalog_example():
 def catalog_id(id):
     categories = Category.query.all()
     selected_category = Category.query.get(id)
-    return render_template('category.html', categories=categories, selected_category=selected_category)
+    return render_template('index.html', categories=categories, selected_category=selected_category)
+
+@app.route('/about/')
+def about():
+    return render_template('about.html')
