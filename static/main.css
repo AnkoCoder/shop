@@ -6,6 +6,10 @@ body {
   padding-top: 56px;
 }
 
+.about {
+  padding-top: 50px;
+}
+
 .active-dark {
   background-color: #212529;
   color: white;
