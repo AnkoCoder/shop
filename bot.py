@@ -127,6 +127,11 @@ def end(update, context):
     )
     del context.user_data['order_id']
     return ConversationHandler.END
+    
+
+def cancel(update, context):
+    del context.user_data['order_id']
+    return ConversationHandler.END
 
 
 start_handler = CommandHandler('start', start)
@@ -137,20 +142,27 @@ conv_handler = ConversationHandler(
     ],
 
     states={
-        ADD_TO_CART: [MessageHandler(Filters.text, add_to_cart)],
-        QUANTITY: [MessageHandler(Filters.text, quantity)],
-        AGAIN: [CallbackQueryHandler(again)],
+        ADD_TO_CART: [
+            MessageHandler(Filters.command, cancel),
+            MessageHandler(Filters.text, add_to_cart)
+        ],
+        QUANTITY: [
+            MessageHandler(Filters.command, cancel),
+            MessageHandler(Filters.text, quantity)
+        ],
+        AGAIN: [
+            MessageHandler(Filters.command, cancel),
+            CallbackQueryHandler(again)
+        ],
         END: [MessageHandler(Filters.text, end)]
     }, 
 
-    fallbacks=[]
+    fallbacks=[MessageHandler(Filters.command, cancel)]
 )
 
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(conv_handler)
+dispatcher.add_handler(conv_handler, 1)
+dispatcher.add_handler(start_handler, 2)
+
 
 
 updater.start_polling()
-
-
-
