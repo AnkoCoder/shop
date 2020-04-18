@@ -71,4 +71,6 @@ async def test():
 
     response = await response.inline_keyboards[0].press_button_await(pattern='No')
 
-loop.run_until_complete(test())
+
+if __name__ == '__,main__':
+    loop.run_until_complete(test())
