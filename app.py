@@ -66,13 +66,14 @@ admin.add_view(OrderItemAdmin(OrderItem, db.session))
 @app.route('/')
 def catalog_example():
     categories = Category.query.all()
-    return render_template('index.html', categories=categories)
+    prodocts = Product.query.all()
+    return render_template('index.html', categories=categories, products=prodocts)
 
-@app.route('/category/<id>/')
-def catalog_id(id):
+@app.route('/category/<category_id>/')
+def catalog_id(category_id):
     categories = Category.query.all()
-    selected_category = Category.query.get(id)
-    return render_template('index.html', categories=categories, selected_category=selected_category)
+    products = Product.query.filter(Product.category_id == category_id)
+    return render_template('index.html', categories=categories, products=products)
 
 @app.route('/about/')
 def about():

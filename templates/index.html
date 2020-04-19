@@ -16,17 +16,9 @@
     </div>
     {% endif %}
     <div class="row">
-      {% if selected_category %}
-        {% for product in selected_category.products %}
-          {% include "product.html" %}
-        {% endfor %}
-      {% else %}
-        {% for category in categories %}
-          {% for product in category.products %}
-            {% include "product.html" %}
-          {% endfor %}
-        {% endfor %}
-      {% endif %}
+      {% for product in products %}
+        {% include "product.html" %}
+      {% endfor %}
     </div>
     <!-- /.row -->
 
