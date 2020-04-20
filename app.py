@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from sqlalchemy import func
 from flask_admin import Admin
 from flask_sqlalchemy import SQLAlchemy
 from flask_admin.contrib.sqla import ModelView
@@ -65,9 +66,13 @@ admin.add_view(OrderItemAdmin(OrderItem, db.session))
 
 @app.route('/')
 def catalog_example():
+    search = request.args.get('search')
     categories = Category.query.all()
-    prodocts = Product.query.all()
-    return render_template('index.html', categories=categories, products=prodocts)
+    if search:
+        products = Product.query.filter(func.lower(Product.name).contains(search)).all()
+    else:
+        products = Product.query.all()
+    return render_template('index.html', categories=categories, products=products)
 
 @app.route('/category/<category_id>/')
 def catalog_id(category_id):

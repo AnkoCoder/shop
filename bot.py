@@ -57,7 +57,7 @@ def add_to_cart(update, context):
         product = Product.query.get(product_id)
     except ValueError:
         product_name = update.message.text
-        products = list(Product.query.filter(func.lower(Product.name).contains(product_name)))
+        products = Product.query.filter(func.lower(Product.name).contains(product_name)).all()
         if len(products) > 1:
             message = 'Found following products:\n'
             for product in products:
