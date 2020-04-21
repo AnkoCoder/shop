@@ -72,13 +72,14 @@ def catalog_example():
         products = Product.query.filter(func.lower(Product.name).contains(search)).all()
     else:
         products = Product.query.all()
-    return render_template('index.html', categories=categories, products=products)
+    return render_template('index.html', categories=categories, products=products, search=search)
 
 @app.route('/category/<category_id>/')
 def catalog_id(category_id):
     categories = Category.query.all()
-    products = Product.query.filter(Product.category_id == category_id)
-    return render_template('index.html', categories=categories, products=products)
+    selected_category = Category.query.get(category_id)
+    products = Product.query.filter(Product.category == selected_category)
+    return render_template('index.html', categories=categories, products=products, selected_category=selected_category)
 
 @app.route('/about/')
 def about():

@@ -19,3 +19,16 @@ body {
   border:none;
   outline:none;
 }
+
+.search-row {
+  margin-top: -25px;
+  margin-bottom: 25px;
+}
+
+.search-input {
+  width: 500px;
+}
+
+.search-button {
+  margin-left: -15px;
+}
