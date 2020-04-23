@@ -20,7 +20,11 @@
       </form>
     </div>
     {% if search %}
-      <h3>Products found for query "{{ search }}" :</h3>
+      {% if products %}
+        <h3>Products found for query "{{ search }}" :</h3>
+      {% else %}
+        <h3>No products found for query "{{ search }}"</h3>
+      {% endif %}
     {% endif %}
     {% if not selected_category and not search %}
       <h3>All our products:</h3>
